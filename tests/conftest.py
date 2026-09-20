@@ -5,17 +5,27 @@ from api_py.models import table_registry, User
 from api_py.app import app
 from contextlib import contextmanager
 from datetime import datetime
+from api_py.database import get_session
 import pytest
+from sqlalchemy.pool import StaticPool
 
 @pytest.fixture
-def client():
+def client(SessionDB):
 
-    return TestClient(app)
+    def get_session_overrides():
+        return SessionDB
+    with TestClient(app) as client:
+        app.dependency_overrides[get_session]= get_session_overrides
+        yield client
+    app.dependency_overrides.clear()  
 
 @pytest.fixture
 def SessionDB():
 
-    engine=create_engine("sqlite:///:memory:")
+    engine=create_engine("sqlite:///:memory:",
+                         connect_args={"check_same_thread":False},
+                         poolclass=StaticPool
+                         )
 
     table_registry.metadata.create_all(engine)
 
@@ -28,9 +38,9 @@ def SessionDB():
 def _mock_db_time(model,time= datetime(2026,9,18)):
 
     def fake_time_hock(mapper ,connection,target):
-        if hasattr(target,"created_a") and hasattr(target, "update_a"):
+        if hasattr(target,"created_a"):
             target.created_a = time
-            target.update_a = time
+
  
 
     event.listen(model, "before_insert", fake_time_hock)
@@ -40,3 +50,16 @@ def _mock_db_time(model,time= datetime(2026,9,18)):
 @pytest.fixture
 def mock_db_time():
     return _mock_db_time
+
+@pytest.fixture
+def new_user(SessionDB: Session):
+    user=User(
+            username= "Carlos",
+            email= "carlos@example.com",
+            password= "12345"
+    )
+    SessionDB.add(user)
+    SessionDB.commit()
+    SessionDB.refresh(user)
+
+    return user

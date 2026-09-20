@@ -10,9 +10,6 @@ class UserPublic(BaseModel):
     email:  EmailStr
     id: int
 
-class UserDB(User):
-    id: int
-
 class ListUser(BaseModel):
     users: list[UserPublic]
 

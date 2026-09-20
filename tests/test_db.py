@@ -28,5 +28,5 @@ def test_create_user_db(SessionDB, mock_db_time):
         "email":"celso@gmail.com",
         "password":"123",
         'created_a':time,
-        "update_a":time
+ 
     }

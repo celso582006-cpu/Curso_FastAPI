@@ -14,4 +14,4 @@ class User():
     email : Mapped[str] = mapped_column(unique=True)
     password : Mapped[str]
     created_a : Mapped[datetime] = mapped_column(init=False, server_default= func.now())
-    update_a : Mapped[datetime] = mapped_column(init=False, onupdate=func.now())
+    #update_a : Mapped[datetime] = mapped_column(init=False, onupdate=func.now())

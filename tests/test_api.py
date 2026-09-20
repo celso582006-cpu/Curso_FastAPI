@@ -10,7 +10,6 @@ def test_create_user(client):
         }
     )
 
-
     assert res.status_code== HTTPStatus.CREATED
     assert res.json()=={
         "id":1,
@@ -18,7 +17,32 @@ def test_create_user(client):
         "email": "carlos@example.com"
     }
 
-def test_only_user(client):
+    
+
+
+def test_all_user_vazio(client):
+
+    res=client.get("/all_user/")
+
+    assert res.status_code ==HTTPStatus.OK
+    assert res.json() == {
+        "users": []
+    }
+
+def test_all_user_cheio(client,new_user):
+    res=client.get("/all_user/")
+    assert res.json()=={
+        "users": [
+            {
+        "id":1,
+        "username": "Carlos",
+        "email": "carlos@example.com"
+    }
+        ]
+    }
+
+
+def test_only_user(client,new_user):
     res=client.get("/only_user/1")
     assert res.status_code == HTTPStatus.OK
     assert res.json() == {
@@ -29,22 +53,7 @@ def test_only_user(client):
 
 
 
-def test_all_ser(client):
-
-    res=client.get("/all_user/")
-
-    assert res.status_code ==HTTPStatus.OK
-    assert res.json() == {
-        "users": [
-            {           
-                "id":1,
-                "username": "Carlos",
-                "email": "carlos@example.com"
-            }
-        ]
-    }
-
-def test_update_user(client):
+def test_update_user(client,new_user):
  
     res=client.put(
         "/update_user/1",
@@ -65,7 +74,7 @@ def test_update_user(client):
     }
 
 
-def test_delete_user(client):
+def test_delete_user(client,new_user):
     res=client.delete("/delete_user/1")
 
     assert res.status_code == HTTPStatus.OK
