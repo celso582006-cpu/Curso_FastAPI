@@ -20,7 +20,6 @@ def test_create_user_db(SessionDB, mock_db_time):
             select(User).where(User.username == "Celso Manuel")
         )
 
-    print(user)
 
     assert asdict(user) == {
         "id": 1,

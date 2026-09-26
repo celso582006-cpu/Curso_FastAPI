@@ -16,3 +16,7 @@ class ListUser(BaseModel):
 class Message(BaseModel):
     message: str
 
+class Token(BaseModel): 
+    access_token: str
+    type_token: str
+

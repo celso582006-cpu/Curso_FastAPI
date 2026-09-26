@@ -1,5 +1,5 @@
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, event,select
 from sqlalchemy.orm import Session
 from api_py.models import table_registry, User
 from api_py.app import app
@@ -8,6 +8,7 @@ from datetime import datetime
 from api_py.database import get_session
 import pytest
 from sqlalchemy.pool import StaticPool
+from api_py.security.encryption import get_password_hash
 
 @pytest.fixture
 def client(SessionDB):
@@ -53,13 +54,25 @@ def mock_db_time():
 
 @pytest.fixture
 def new_user(SessionDB: Session):
+    password="123"
     user=User(
             username= "Carlos",
             email= "carlos@example.com",
-            password= "12345"
+            password= get_password_hash(password) 
     )
     SessionDB.add(user)
     SessionDB.commit()
     SessionDB.refresh(user)
-
+ 
     return user
+
+@pytest.fixture
+def token(client,new_user):
+
+    res=client.post(
+        "/token/",
+        data={"username":new_user.email,"password":"123"}
+        
+    )
+
+    return res.json()["access_token"]
